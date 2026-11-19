@@ -42,7 +42,8 @@ for (city, state), values in prices.items():
         "state": state,
         "label": f"{city}, {state}",
         "sales": len(values),
-        "median_sale_price": int(statistics.median(values)),
+        # The median of an even number of sales can end in .5, so keep it exact.
+        "median_sale_price": statistics.median(values),
     })
 
 cities.sort(key=lambda c: c["median_sale_price"], reverse=True)
