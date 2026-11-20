@@ -17,7 +17,7 @@
       "state": "NC",
       "label": "Pittsboro, NC",
       "sales": 92,
-      "median_sale_price": 876985
+      "median_sale_price": 876985.5
     },
     {
       "city": "Chapel Hill",
@@ -31,7 +31,7 @@
       "state": "VA",
       "label": "Charlottesville, VA",
       "sales": 2774,
-      "median_sale_price": 615000
+      "median_sale_price": 615000.0
     },
     {
       "city": "Middleton",
@@ -59,14 +59,14 @@
       "state": "FL",
       "label": "Newberry, FL",
       "sales": 152,
-      "median_sale_price": 439995
+      "median_sale_price": 439995.0
     },
     {
       "city": "State College",
       "state": "PA",
       "label": "State College, PA",
       "sales": 1348,
-      "median_sale_price": 430000
+      "median_sale_price": 430000.0
     },
     {
       "city": "Madison",

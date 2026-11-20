@@ -1,107 +1,229 @@
 <!DOCTYPE html>
-<!-- A placeholder from the Home Sales template. Replace this file with your site's first page. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Under construction</title>
-  <!-- An empty icon, so the browser doesn't log an error looking for favicon.ico -->
+  <title>Median sale price by city</title>
   <link rel="icon" href="data:,">
   <style>
-    :root { color-scheme: light dark; }
+    /* Approved site palette: three colors only. */
+    :root {
+      --grey: #575655;
+      --stone: #414040;
+      --bone: #fffbea;
+    }
+    * { box-sizing: border-box; }
     body {
-      max-width: 40rem;
-      margin: 0 auto;
-      padding: 3rem 1rem;
-      font-family: system-ui, sans-serif;
+      margin: 0;
+      background: var(--bone);
+      color: var(--stone);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       line-height: 1.5;
     }
-    footer { margin-top: 3rem; font-size: 0.875rem; opacity: 0.75; }
-    .chart h2 { font-size: 1.25rem; margin-bottom: 0.25rem; }
-    .chart .note { font-size: 0.875rem; opacity: 0.75; margin-top: 0; }
-    .chart ul { list-style: none; padding: 0; margin: 1rem 0 0; }
-    .chart li {
+    .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1rem; }
+
+    /* Hero: centered text, as in the reference */
+    .hero { background: var(--stone); color: var(--bone); padding: 3.25rem 0 3rem; text-align: center; }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      line-height: 1.1;
+      font-weight: 700;
+    }
+    .hero .figure {
+      margin: 0.5rem 0 0;
+      font-size: clamp(2.75rem, 9vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .pill {
+      display: inline-block;
+      margin: 1rem 0 0;
+      padding: 0.3rem 0.9rem;
+      background: var(--bone);
+      color: var(--stone);
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .hero .sentence { margin: 1rem auto 0; max-width: 42rem; font-size: 1.05rem; }
+
+    /* Overview: bold stat list, as in the reference */
+    .overview { display: grid; gap: 1.5rem; padding: 2.5rem 0 1rem; }
+    .overview h2 { margin: 0; font-size: clamp(1.75rem, 3.5vw, 2.5rem); line-height: 1.1; font-weight: 800; }
+    .stat-list { list-style: none; margin: 0; padding: 0; }
+    .stat-list li {
+      padding: 0.7rem 0;
+      border-top: 1px solid var(--grey);
+      font-size: 1.1rem;
+    }
+    .stat-list li:last-child { border-bottom: 1px solid var(--grey); }
+    .stat-list strong { font-weight: 800; }
+    .stat-list .note { color: var(--grey); font-size: 0.95rem; }
+
+    .rule {
+      margin: 1.5rem 0 0;
+      padding: 0.9rem 1rem;
+      border-left: 4px solid var(--stone);
+      background: var(--bone);
+      font-size: 1rem;
+    }
+
+    /* Ranked list and bar graph: stacked on mobile, side by side on desktop */
+    .panels { display: grid; gap: 2rem; margin: 2rem 0 0; }
+    .panel h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+    .panel .sub { margin: -0.5rem 0 0.75rem; color: var(--grey); font-size: 0.9rem; }
+    .ranked { list-style: none; margin: 0; padding: 0; }
+    .ranked li {
       display: grid;
-      grid-template-columns: minmax(7.5rem, 11rem) 1fr auto;
+      grid-template-columns: 2.25rem 1fr auto;
+      gap: 0.5rem;
+      align-items: baseline;
+      padding: 0.6rem 0;
+      border-top: 1px solid var(--grey);
+      font-variant-numeric: tabular-nums;
+    }
+    .ranked li:last-child { border-bottom: 1px solid var(--grey); }
+    .ranked .rank { color: var(--grey); }
+    .ranked .city { font-weight: 800; }
+    .ranked .sales { grid-column: 2 / 4; color: var(--grey); font-size: 0.85rem; }
+    .ranked .price { font-weight: 700; }
+
+    .bars { list-style: none; margin: 0; padding: 0; }
+    .bars li {
+      display: grid;
+      grid-template-columns: minmax(6.5rem, 9.5rem) 1fr auto;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 0.4rem;
+      padding: 0.3rem 0;
       font-size: 0.9rem;
+      font-variant-numeric: tabular-nums;
     }
-    .chart .bar {
-      height: 1.1rem;
-      background: #2b6cb0;
-      border-radius: 2px;
-      min-width: 2px;
-    }
-    .chart .value { font-variant-numeric: tabular-nums; white-space: nowrap; }
-    @media (prefers-color-scheme: dark) {
-      .chart .bar { background: #63a4e8; }
+    .bars .bar { display: block; height: 1rem; background: var(--grey); border-radius: 2px; min-width: 2px; }
+    .bars .value { white-space: nowrap; }
+
+    footer { border-top: 1px solid var(--grey); margin-top: 3rem; padding: 1.5rem 0 3rem; font-size: 0.875rem; color: var(--grey); }
+    footer p { margin: 0; }
+
+    @media (min-width: 52rem) {
+      .overview { grid-template-columns: 1fr 1fr; align-items: start; }
+      .panels { grid-template-columns: 1fr 1fr; align-items: start; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>This site is under construction</h1>
-    <p>It will show findings from the College-town home sales dataset.</p>
-    <section class="chart" aria-labelledby="chart-title">
-      <h2 id="chart-title">Median sale price by city</h2>
-      <p class="note" id="chart-note">Sales under $10,000 are left out. Loading the data…</p>
-      <ul id="chart-bars"></ul>
+  <header class="hero">
+    <div class="wrap">
+      <h1>Median sale price by city</h1>
+      <p class="figure" id="hero-figure">–</p>
+      <p><span class="pill" id="hero-pill">Loading…</span></p>
+      <p class="sentence" id="hero-sentence"></p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="overview">
+      <div>
+        <h2>What the data shows</h2>
+        <p class="rule" id="rule-text">Loading…</p>
+      </div>
+      <ul class="stat-list" id="stat-list"></ul>
+    </section>
+
+    <section class="panels">
+      <div class="panel">
+        <h3>Ranked by median sale price</h3>
+        <p class="sub">Highest to lowest. Sales included are the sales each median is calculated from.</p>
+        <ol class="ranked" id="ranked"></ol>
+      </div>
+      <div class="panel">
+        <h3>Bar graph</h3>
+        <p class="sub" id="chart-sub">Each bar is a city's median sale price.</p>
+        <ul class="bars" id="bars"></ul>
+      </div>
     </section>
   </main>
-  <footer>
+
+  <footer class="wrap">
     <p>Data: College-town home sales dataset, version 1.0 (2026). University of Illinois-Deloitte Foundation Center for Business Emerging Technologies. Data collected March 2026.</p>
   </footer>
+
   <script>
     (function () {
-      var money = new Intl.NumberFormat("en-US", {
-        style: "currency", currency: "USD", maximumFractionDigits: 0
-      });
-      var note = document.getElementById("chart-note");
-      var list = document.getElementById("chart-bars");
-
-      function fail() {
-        note.textContent = "The chart data could not be loaded.";
+      var money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+      var count = new Intl.NumberFormat("en-US");
+      function $(id) { return document.getElementById(id); }
+      function el(tag, text, cls) {
+        var e = document.createElement(tag);
+        e.textContent = text;
+        if (cls) { e.className = cls; }
+        return e;
       }
 
-      // Relative path: GitHub Pages serves the site from a subfolder.
       fetch("data/city_medians.json")
-        .then(function (response) {
-          if (!response.ok) { throw new Error("HTTP " + response.status); }
-          return response.json();
-        })
+        .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
         .then(function (data) {
-          var cities = data.cities.slice().sort(function (a, b) {
-            return b.median_sale_price - a.median_sale_price;
+          var cities = data.cities.slice().sort(function (a, b) { return b.median_sale_price - a.median_sale_price; });
+          var total = cities.reduce(function (s, c) { return s + c.sales; }, 0);
+          var top = cities[0], bottom = cities[cities.length - 1];
+          var max = top.median_sale_price;
+
+          $("hero-figure").textContent = money.format(top.median_sale_price);
+          $("hero-pill").textContent = top.label + " · highest median";
+          $("hero-sentence").textContent = "The highest city median is " + money.format(top.median_sale_price) +
+            " in " + top.label + ". Medians are calculated from " + count.format(total) + " qualifying sales.";
+
+          $("rule-text").innerHTML = "<strong>Price rule:</strong> Sales under " + money.format(data.min_sale_price) +
+            " are excluded (" + count.format(data.rows_excluded) + " sales). Each median uses the remaining sale prices.";
+
+          var stats = $("stat-list");
+          [
+            ["Cities ranked:", count.format(cities.length), ""],
+            ["Qualifying sales:", count.format(total), "after the price rule"],
+            ["Excluded sales:", count.format(data.rows_excluded), "under " + money.format(data.min_sale_price)],
+            ["Highest median:", money.format(top.median_sale_price), top.label],
+            ["Lowest median:", money.format(bottom.median_sale_price), bottom.label]
+          ].forEach(function (row) {
+            var li = document.createElement("li");
+            var strong = document.createElement("strong");
+            strong.textContent = row[0] + " " + row[1];
+            li.appendChild(strong);
+            if (row[2]) { li.appendChild(document.createTextNode(" ")); li.appendChild(el("span", "(" + row[2] + ")", "note")); }
+            stats.appendChild(li);
           });
-          var max = Math.max.apply(null, cities.map(function (c) {
-            return c.median_sale_price;
-          }));
-          note.textContent = data.rule + " Source: " + data.source + ".";
+
+          var ranked = $("ranked");
+          cities.forEach(function (c, i) {
+            var li = document.createElement("li");
+            li.appendChild(el("span", String(i + 1), "rank"));
+            li.appendChild(el("span", c.label, "city"));
+            li.appendChild(el("span", money.format(c.median_sale_price), "price"));
+            li.appendChild(el("span", count.format(c.sales) + " sales included", "sales"));
+            ranked.appendChild(li);
+          });
+
+          var bars = $("bars");
           cities.forEach(function (c) {
             var li = document.createElement("li");
-            var name = document.createElement("span");
-            name.textContent = c.label;
+            li.appendChild(el("span", c.label));
             var track = document.createElement("span");
             var bar = document.createElement("span");
             bar.className = "bar";
-            bar.style.display = "block";
             bar.style.width = ((c.median_sale_price / max) * 100).toFixed(2) + "%";
             bar.setAttribute("role", "img");
-            bar.setAttribute("aria-label", c.label + ": median " +
-              money.format(c.median_sale_price) + " from " + c.sales + " sales");
+            bar.setAttribute("aria-label", c.label + ": " + money.format(c.median_sale_price));
             track.appendChild(bar);
-            var value = document.createElement("span");
-            value.className = "value";
-            value.textContent = money.format(c.median_sale_price);
-            li.appendChild(name);
             li.appendChild(track);
-            li.appendChild(value);
-            list.appendChild(li);
+            li.appendChild(el("span", money.format(c.median_sale_price), "value"));
+            bars.appendChild(li);
           });
         })
-        .catch(fail);
+        .catch(function () { $("rule-text").textContent = "The city data could not be loaded."; });
     })();
   </script>
 </body>
